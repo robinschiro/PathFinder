@@ -12,9 +12,15 @@ TARGET = PathFinder
 TEMPLATE = app
 
 
-SOURCES += main.cpp\
-        mainwindow.cpp
+SOURCES +=  src/main.cpp\
+            src/mainwindow.cpp \
+            src/renderarea.cpp \
 
-HEADERS  += mainwindow.h
+HEADERS  += inc/mainwindow.h \
+            inc/renderarea.h \
 
 FORMS    += mainwindow.ui
+
+DISTFILES += \
+    build/PathFinder \
+    README.md
