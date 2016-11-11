@@ -1,4 +1,5 @@
 #include "inc/PathVisualizer.h"
+#include "inc/VoronoiGenerator.h"
 #include "inc/mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
@@ -13,12 +14,31 @@ MainWindow::MainWindow(QWidget *parent) :
 
     QGridLayout *mainLayout = new QGridLayout;
 
-    PathVisualizer visualizer;
-    mainLayout->addWidget(visualizer.CreateCanvas());
+    // Run the path finding algorithm, which generates a visualization.
+    RenderArea* pathFinderResults = RunPathFinder();
+    
+    mainLayout->addWidget(pathFinderResults);
     ui->centralWidget->setLayout(mainLayout);
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+   delete ui;
+}
+
+RenderArea* MainWindow::RunPathFinder()
+{
+   // Generate the polygonal obstacles.
+   VoronoiGenerator vGen(1000, 500);
+   vector<PolygonFeature> features = vGen.GeneratePolygonFeatures();
+   
+   // Generate the Voronoi diagram.
+   vector<Point> sourceVertices;
+   vector<Segment> sourceEdges;
+   VoronoiDiagram* vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
+   
+   PathVisualizer visualizer(1000, 500);
+   RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges);   
+   
+   return visualization;
 }

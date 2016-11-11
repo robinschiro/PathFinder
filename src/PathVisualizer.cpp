@@ -1,9 +1,5 @@
 #include "inc/PathVisualizer.h"
-
-PathVisualizer::PathVisualizer()
-{
-   
-}
+#include "inc/voronoi_visual_utils.hpp"
 
 void generateRandomPoints(QPainterPath& canvas, int numPoints, int thickness, 
                           int maxXValue, int maxYValue, 
@@ -15,19 +11,6 @@ void generateRandomPoints(QPainterPath& canvas, int numPoints, int thickness,
         int randY = (rand() % (maxYValue - minYValue)) + minYValue;
         canvas.addEllipse(randX, randY, thickness, thickness);
     }
-}
-
-void generateFixedPolygons(QPainterPath& canvas)
-{
-   // Generate triangle.
-   QPolygonF triangle;
-   triangle << QPointF(150, 30) << QPointF(160, 180) << QPointF(350, 50);
-   
-   // Generate pentagon.
-   QPolygonF pentagon;
-   pentagon << QPointF(400, 250); 
-   
-   canvas.addPolygon(triangle);
 }
 
 // Guarantee that bounding boxes of generated polygons do not overlap.
@@ -58,25 +41,122 @@ void generateRandomPolygons(QPainterPath& canvas, int numPolygons,
 //   rectPath.closeSubpath();
 }
 
-RenderArea* PathVisualizer::CreateCanvas()
+PathVisualizer::PathVisualizer(int canvasWidth, int canvasHeight) :
+   canvasWidth(canvasWidth),
+   canvasHeight(canvasHeight)
+{   
+}
+
+RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, VoronoiDiagram* vDiagram, 
+                                         vector<Point>& vertices, vector<Segment>& edges)
 {
-   // Generate start and end points.
+   int startEndBuffer = 100;
+   
+   sourceVertices = vertices;
+   sourceEdges = edges;
+   
    QPainterPath grid;
-   generateRandomPoints(grid, 1, 4, 100, 500);
-   generateRandomPoints(grid, 1, 4, 1000, 500, 900);
+//   // Generate start and end points.
+//   generateRandomPoints(grid, 1, 4, startEndBuffer, canvasHeight);
+//   generateRandomPoints(grid, 1, 4, canvasWidth, canvasHeight, canvasWidth - startEndBuffer);
    
-   // Generate set of polygons used for testing.
-   generateFixedPolygons(grid);
-
-   return new RenderArea(grid, 1000, 500);
+   // Draw features.
+   this->DrawPolygonFeatures(grid, features);
+   
+   // Draw Voronoi edges.
+   this->DrawVoronoiEdges(grid, vDiagram);
+   
+   return new RenderArea(grid, canvasWidth, canvasHeight);
 }
 
-void PathVisualizer::DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFeature> features)
+void PathVisualizer::DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFeature>& features)
 {
-   
+   for (PolygonFeature feature : features)
+   {
+      QPolygonF poly;
+      for (Point p : feature.vertices)
+      {
+         poly << QPointF(p.x(), p.y());
+      }
+      
+      canvas.addPolygon(poly);
+   }   
 }
 
-void PathVisualizer::DrawVoronoiEdges(QPainterPath& canvas, voronoi_diagram<double> diagram)
+Point PathVisualizer::RetrievePoint(const Cell& cell) 
 {
+   SourceIndex index = cell.source_index();
+   SourceCat category = cell.source_category();
+   if (category == SOURCE_CATEGORY_SINGLE_POINT) {
+      return sourceVertices[index];
+   }
+   index -= sourceVertices.size();
+   if (category == SOURCE_CATEGORY_SEGMENT_START_POINT) {
+      return low(sourceEdges[index]);
+   } 
+   else 
+   {
+      return high(sourceEdges[index]);
+   }
+}
+
+Segment PathVisualizer::RetrieveSegment(const Cell& cell)
+{
+   SourceIndex index = cell.source_index() - sourceVertices.size();
+   return sourceEdges[index];
+}
+
+// Based on source: 
+// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
+void PathVisualizer::GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge) 
+{
+   double max_dist = 1E-3 * canvasWidth;
    
+   Point point = edge.cell()->contains_point() ?
+     RetrievePoint(*edge.cell()) :
+     RetrievePoint(*edge.twin()->cell());
+   Segment segment = edge.cell()->contains_point() ?
+     RetrieveSegment(*edge.twin()->cell()) :
+     RetrieveSegment(*edge.cell());
+   
+   voronoi_visual_utils<CoordNumType>::discretize(point, segment, max_dist, sampled_edge);
+}
+
+// Based on source: 
+// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
+void PathVisualizer::DrawVoronoiEdges(QPainterPath& canvas, VoronoiDiagram* vd)
+{
+   for (auto it = vd->edges().begin(); it != vd->edges().end(); ++it) 
+   {
+      std::vector<Point> samples;
+      if (!it->is_finite()) 
+      {
+         continue;
+//        clip_infinite_edge(*it, &samples);
+      } 
+      else 
+      {
+         Point vertex0(it->vertex0()->x(), it->vertex0()->y());
+         samples.push_back(vertex0);
+         Point vertex1(it->vertex1()->x(), it->vertex1()->y());
+         samples.push_back(vertex1);
+         if (it->is_curved()) 
+         {
+            GenerateCurvedEdgePoints(*it, &samples);
+         }
+      }
+      
+      if (samples.size() >= 2)
+      {
+         // Draw the edge.
+         QPainterPath edge;
+         edge.moveTo(samples[0].x(), samples[0].y());         
+         for (int i = 1; i < samples.size(); i++)
+         {
+            edge.lineTo(samples[i].x(), samples[i].y());
+         }
+         
+         canvas.addPath(edge);
+      }     
+    }
 }

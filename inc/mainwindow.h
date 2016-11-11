@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+#include "inc/renderarea.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,10 +18,12 @@ public:
     ~MainWindow();
 
 protected:
-    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
+//    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
 
 private:
     Ui::MainWindow *ui;
+    
+    RenderArea* RunPathFinder();
 };
 
 #endif // MAINWINDOW_H

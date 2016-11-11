@@ -9,17 +9,28 @@ using namespace boost::polygon;
 class PathVisualizer
 {
 public:
-   PathVisualizer();
+   PathVisualizer(int canvasWidth, int canvasHeight);
    
-   RenderArea* CreateCanvas();
+   RenderArea* CreateCanvas(vector<PolygonFeature>& features, VoronoiDiagram* vDiagram, vector<Point>& vertices, 
+                            vector<Segment>& edges);
    
-   void DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFeature> features);
+private:
+   int canvasWidth;
+   int canvasHeight;
+   vector<Point> sourceVertices;
+   vector<Segment> sourceEdges;
    
-   void DrawVoronoiEdges(QPainterPath& canvas, voronoi_diagram<double> diagram);
    
-   void DrawTypeOneEdges(QPainterPath& canvas, vector<Segment> diagram);
-   void DrawTypeTwoEdges(QPainterPath& canvas, vector<Segment> diagram);
-   void DrawTypeTjreeEdges(QPainterPath& canvas, vector<Segment> diagram);
+   void DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFeature>& features);
+   
+   void DrawVoronoiEdges(QPainterPath& canvas, VoronoiDiagram* diagram);
+   void GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge);
+   Point RetrievePoint(const Cell& cell);
+   Segment RetrieveSegment(const Cell& cell);
+   
+   void DrawTypeOneEdges(QPainterPath& canvas, vector<Segment>& diagram);
+   void DrawTypeTwoEdges(QPainterPath& canvas, vector<Segment>& diagram);
+   void DrawTypeThreeEdges(QPainterPath& canvas, vector<Segment>& diagram);
 };
 
 #endif // PATHVISUALIZER_H
