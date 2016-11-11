@@ -52,8 +52,9 @@
 
 #include <QPainter>
 
-RenderArea::RenderArea(const QPainterPath &path, QWidget *parent)
-    : QWidget(parent), path(path)
+RenderArea::RenderArea(const QPainterPath &path, const int width,
+                       const int height, QWidget *parent)
+    : QWidget(parent), path(path), canvasWidth(width), canvasHeight(height)
 {
     penWidth = 1;
     rotationAngle = 0;
@@ -62,12 +63,12 @@ RenderArea::RenderArea(const QPainterPath &path, QWidget *parent)
 
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(50, 50);
+    return QSize(canvasWidth, canvasHeight);
 }
 
 QSize RenderArea::sizeHint() const
 {
-    return QSize(100, 100);
+    return minimumSizeHint();
 }
 
 void RenderArea::setFillRule(Qt::FillRule rule)
@@ -105,7 +106,7 @@ void RenderArea::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.scale(width() / 100.0, height() / 100.0);
+    painter.scale(width() / canvasWidth, height() / canvasHeight);
     painter.translate(50.0, 50.0);
     painter.rotate(-rotationAngle);
     painter.translate(-50.0, -50.0);

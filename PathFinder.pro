@@ -15,9 +15,16 @@ TEMPLATE = app
 SOURCES +=  src/main.cpp\
             src/mainwindow.cpp \
             src/renderarea.cpp \
+            src/PathVisualizer.cpp \
+            src/VoronoiGenerator.cpp
 
 HEADERS  += inc/mainwindow.h \
             inc/renderarea.h \
+            inc/PathVisualizer.h \
+            inc/VoronoiGenerator.h \
+            inc/voronoi_visual_utils.hpp
+
+INCLUDEPATH += /home/robin/boost_1_60_0
 
 FORMS    += mainwindow.ui
 

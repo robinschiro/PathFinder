@@ -59,7 +59,8 @@ class RenderArea : public QWidget
     Q_OBJECT
 
 public:
-    explicit RenderArea(const QPainterPath &path, QWidget *parent = 0);
+    explicit RenderArea(const QPainterPath &path, const int canvasWidth, 
+                        const int canvasHeight, QWidget *parent = 0);
 
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
@@ -67,7 +68,7 @@ public:
 public slots:
     void setFillRule(Qt::FillRule rule);
     void setFillGradient(const QColor &color1, const QColor &color2);
-    void setPenWidth(int width);
+    void setPenWidth(int canvasWidth);
     void setPenColor(const QColor &color);
     void setRotationAngle(int degrees);
 
@@ -81,6 +82,8 @@ private:
     int penWidth;
     QColor penColor;
     int rotationAngle;
+    int canvasWidth;
+    int canvasHeight;
 };
 
 #endif // RENDERAREA_H
