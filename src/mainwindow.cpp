@@ -28,17 +28,20 @@ MainWindow::~MainWindow()
 
 RenderArea* MainWindow::RunPathFinder()
 {
+   int canvasWidth = 1000;
+   int canvasHeight = 500;
+   
    // Generate the polygonal obstacles.
-   VoronoiGenerator vGen(1000, 500);
-   vector<PolygonFeature> features = vGen.GeneratePolygonFeatures();
+   VoronoiGenerator vGen(canvasWidth, canvasHeight);
+   vector<PolygonFeature> features = vGen.GeneratePolygonFeatures();  
    
    // Generate the Voronoi diagram.
    vector<Point> sourceVertices;
    vector<Segment> sourceEdges;
-   VoronoiDiagram* vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
+   RefinedVoronoiDiagram* vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
    
-   PathVisualizer visualizer(1000, 500);
-   RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges);   
+   PathVisualizer visualizer(canvasWidth, canvasHeight);
+   RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges);
    
    return visualization;
 }

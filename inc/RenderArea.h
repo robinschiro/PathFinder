@@ -52,35 +52,34 @@
 #define RENDERAREA_H
 
 #include <QPainterPath>
+#include <QPainter>
 #include <QWidget>
+#include <memory>
+#include <vector>
+
+#include "inc/RenderLayer.h"
+
+using namespace std;
 
 class RenderArea : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit RenderArea(const QPainterPath &path, const int canvasWidth, 
-                        const int canvasHeight, QWidget *parent = 0);
+    explicit RenderArea(vector<RenderLayer> layers, const int canvasWidth, 
+                        const int canvasHeight, QWidget* parent = 0);
 
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
 
 public slots:
-    void setFillRule(Qt::FillRule rule);
-    void setFillGradient(const QColor &color1, const QColor &color2);
-    void setPenWidth(int canvasWidth);
-    void setPenColor(const QColor &color);
     void setRotationAngle(int degrees);
 
 protected:
-    void paintEvent(QPaintEvent *event) Q_DECL_OVERRIDE;
+    void paintEvent(QPaintEvent* event) Q_DECL_OVERRIDE;
 
 private:
-    QPainterPath path;
-    QColor fillColor1;
-    QColor fillColor2;
-    int penWidth;
-    QColor penColor;
+    vector<RenderLayer> layers;
     int rotationAngle;
     int canvasWidth;
     int canvasHeight;

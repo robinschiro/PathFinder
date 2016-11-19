@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "inc/renderarea.h"
+#include "inc/RenderArea.h"
 
 namespace Ui {
 class MainWindow;

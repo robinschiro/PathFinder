@@ -8,21 +8,27 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+QMAKE_CXXFLAGS += -O0
+
 TARGET = PathFinder
 TEMPLATE = app
 
 
 SOURCES +=  src/main.cpp\
             src/mainwindow.cpp \
-            src/renderarea.cpp \
+            src/RenderArea.cpp \
             src/PathVisualizer.cpp \
-            src/VoronoiGenerator.cpp
+            src/VoronoiGenerator.cpp \
+            src/RenderLayer.cpp \
+            src/RefinedVoronoiDiagram.cpp
 
 HEADERS  += inc/mainwindow.h \
-            inc/renderarea.h \
+            inc/RenderArea.h \
             inc/PathVisualizer.h \
             inc/VoronoiGenerator.h \
-            inc/voronoi_visual_utils.hpp
+            inc/voronoi_visual_utils.hpp \
+            inc/RenderLayer.h \
+            inc/RefinedVoronoiDiagram.h
 
 INCLUDEPATH += /home/robin/boost_1_60_0
 

@@ -1,8 +1,8 @@
 #include "inc/PathVisualizer.h"
 #include "inc/voronoi_visual_utils.hpp"
 
-void generateRandomPoints(QPainterPath& canvas, int numPoints, int thickness, 
-                          int maxXValue, int maxYValue, 
+void generateRandomPoints(QPainterPath& canvas, int numPoints, int thickness,
+                          int maxXValue, int maxYValue,
                           int minXValue = 0, int minYValue = 0)
 {
     for (int i = 0; i < numPoints; i++)
@@ -32,7 +32,7 @@ void generateRandomPolygons(QPainterPath& canvas, int numPolygons,
 //        canvas.addEllipse(randX, randY, thickness, thickness);
 //        canvas.ad
 //    }
-   
+
 //   QPainterPath rectPath;
 //   rectPath.moveTo(20.0, 30.0);
 //   rectPath.lineTo(80.0, 30.0);
@@ -44,33 +44,47 @@ void generateRandomPolygons(QPainterPath& canvas, int numPolygons,
 PathVisualizer::PathVisualizer(int canvasWidth, int canvasHeight) :
    canvasWidth(canvasWidth),
    canvasHeight(canvasHeight)
-{   
+{
 }
 
-RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, VoronoiDiagram* vDiagram, 
+RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, RefinedVoronoiDiagram* rvDiagram,
                                          vector<Point>& vertices, vector<Segment>& edges)
 {
    int startEndBuffer = 100;
-   
+
    sourceVertices = vertices;
    sourceEdges = edges;
-   
-   QPainterPath grid;
+
+   vector<RenderLayer> layers;
 //   // Generate start and end points.
 //   generateRandomPoints(grid, 1, 4, startEndBuffer, canvasHeight);
 //   generateRandomPoints(grid, 1, 4, canvasWidth, canvasHeight, canvasWidth - startEndBuffer);
-   
-   // Draw features.
-   this->DrawPolygonFeatures(grid, features);
-   
+
+   // Draw borders.
+   layers.push_back(this->DrawSegments(rvDiagram->borders));
+
+   // Draw the type one segments.
+   layers.push_back(this->DrawSegments(rvDiagram->typeOneSegments, Qt::green));
+
    // Draw Voronoi edges.
-   this->DrawVoronoiEdges(grid, vDiagram);
-   
-   return new RenderArea(grid, canvasWidth, canvasHeight);
+   layers.push_back(this->DrawVoronoiEdges(std::move(rvDiagram->voronoiDiagram)));
+
+   // Draw features.
+   layers.push_back(this->DrawPolygonFeatures(features));
+
+
+   return new RenderArea(layers, canvasWidth, canvasHeight);
 }
 
-void PathVisualizer::DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFeature>& features)
+RenderLayer PathVisualizer::DrawPolygonFeatures(vector<PolygonFeature>& features)
 {
+   RenderLayer layer;
+
+   // Make the polygons red.
+   layer.penColor = Qt::red;
+   layer.fillColor1 = Qt::red;
+   layer.fillColor2 = Qt::red;
+
    for (PolygonFeature feature : features)
    {
       QPolygonF poly;
@@ -78,12 +92,14 @@ void PathVisualizer::DrawPolygonFeatures(QPainterPath& canvas, vector<PolygonFea
       {
          poly << QPointF(p.x(), p.y());
       }
-      
-      canvas.addPolygon(poly);
-   }   
+
+      layer.path.addPolygon(poly);
+   }
+
+   return layer;
 }
 
-Point PathVisualizer::RetrievePoint(const Cell& cell) 
+Point PathVisualizer::RetrievePoint(const Cell& cell)
 {
    SourceIndex index = cell.source_index();
    SourceCat category = cell.source_category();
@@ -93,8 +109,8 @@ Point PathVisualizer::RetrievePoint(const Cell& cell)
    index -= sourceVertices.size();
    if (category == SOURCE_CATEGORY_SEGMENT_START_POINT) {
       return low(sourceEdges[index]);
-   } 
-   else 
+   }
+   else
    {
       return high(sourceEdges[index]);
    }
@@ -106,57 +122,82 @@ Segment PathVisualizer::RetrieveSegment(const Cell& cell)
    return sourceEdges[index];
 }
 
-// Based on source: 
+// Based on source:
 // http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
-void PathVisualizer::GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge) 
+void PathVisualizer::GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge)
 {
    double max_dist = 1E-3 * canvasWidth;
-   
+
    Point point = edge.cell()->contains_point() ?
-     RetrievePoint(*edge.cell()) :
-     RetrievePoint(*edge.twin()->cell());
+                 RetrievePoint(*edge.cell()) :
+                 RetrievePoint(*edge.twin()->cell());
+
    Segment segment = edge.cell()->contains_point() ?
-     RetrieveSegment(*edge.twin()->cell()) :
-     RetrieveSegment(*edge.cell());
-   
+                     RetrieveSegment(*edge.twin()->cell()) :
+                     RetrieveSegment(*edge.cell());
+
    voronoi_visual_utils<CoordNumType>::discretize(point, segment, max_dist, sampled_edge);
 }
 
-// Based on source: 
+// Based on source:
 // http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
-void PathVisualizer::DrawVoronoiEdges(QPainterPath& canvas, VoronoiDiagram* vd)
+RenderLayer PathVisualizer::DrawVoronoiEdges(unique_ptr<VoronoiDiagram> vd)
 {
-   for (auto it = vd->edges().begin(); it != vd->edges().end(); ++it) 
+   RenderLayer layer;
+
+   for (auto it = vd->edges().begin(); it != vd->edges().end(); ++it)
    {
       std::vector<Point> samples;
-      if (!it->is_finite()) 
+      if (!it->is_finite())
       {
          continue;
 //        clip_infinite_edge(*it, &samples);
-      } 
-      else 
+      }
+      else
       {
          Point vertex0(it->vertex0()->x(), it->vertex0()->y());
          samples.push_back(vertex0);
          Point vertex1(it->vertex1()->x(), it->vertex1()->y());
          samples.push_back(vertex1);
-         if (it->is_curved()) 
+         if (it->is_curved())
          {
             GenerateCurvedEdgePoints(*it, &samples);
          }
       }
-      
+
       if (samples.size() >= 2)
       {
          // Draw the edge.
          QPainterPath edge;
-         edge.moveTo(samples[0].x(), samples[0].y());         
+         edge.moveTo(samples[0].x(), samples[0].y());
          for (int i = 1; i < samples.size(); i++)
          {
             edge.lineTo(samples[i].x(), samples[i].y());
          }
-         
-         canvas.addPath(edge);
-      }     
-    }
+
+         layer.path.addPath(edge);
+      }
+   }
+
+   return layer;
 }
+
+RenderLayer PathVisualizer::DrawSegments(vector<Segment>& segments, QColor color, Qt::PenStyle penStyle)
+{
+   RenderLayer layer;
+   layer.penColor = color;
+   layer.penStyle = penStyle;
+
+   for (Segment segment : segments)
+   {
+      QPainterPath edge;
+      edge.moveTo(segment.low().x(), segment.low().y());
+      edge.lineTo(segment.high().x(), segment.high().y());
+
+      layer.path.addPath(edge);
+   }
+
+   return layer;
+}
+
+

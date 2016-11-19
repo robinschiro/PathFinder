@@ -48,15 +48,13 @@
 **
 ****************************************************************************/
 
-#include "inc/renderarea.h"
+#include "inc/RenderArea.h"
+#include <iostream>
 
-#include <QPainter>
-
-RenderArea::RenderArea(const QPainterPath &path, const int width,
+RenderArea::RenderArea(vector<RenderLayer> layers, const int width,
                        const int height, QWidget *parent)
-    : QWidget(parent), path(path), canvasWidth(width), canvasHeight(height)
+    : QWidget(parent), layers(layers), canvasWidth(width), canvasHeight(height)
 {
-    penWidth = 1;
     rotationAngle = 0;
     setBackgroundRole(QPalette::Base);
 }
@@ -71,31 +69,6 @@ QSize RenderArea::sizeHint() const
     return minimumSizeHint();
 }
 
-void RenderArea::setFillRule(Qt::FillRule rule)
-{
-    path.setFillRule(rule);
-    update();
-}
-
-void RenderArea::setFillGradient(const QColor &color1, const QColor &color2)
-{
-    fillColor1 = color1;
-    fillColor2 = color2;
-    update();
-}
-
-void RenderArea::setPenWidth(int width)
-{
-    penWidth = width;
-    update();
-}
-
-void RenderArea::setPenColor(const QColor &color)
-{
-    penColor = color;
-    update();
-}
-
 void RenderArea::setRotationAngle(int degrees)
 {
     rotationAngle = degrees;
@@ -104,17 +77,20 @@ void RenderArea::setRotationAngle(int degrees)
 
 void RenderArea::paintEvent(QPaintEvent *)
 {
-    QPainter painter(this);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.scale(width() / canvasWidth, height() / canvasHeight);
-    painter.translate(50.0, 50.0);
-    painter.rotate(-rotationAngle);
-    painter.translate(-50.0, -50.0);
+   QPainter painter(this);
+   painter.setRenderHint(QPainter::Antialiasing);
+   painter.scale(width() / canvasWidth, height() / canvasHeight);
+//   painter.translate(50.0, 50.0);
+//   painter.rotate(-rotationAngle);
+//   painter.translate(-50.0, -50.0);
 
-    painter.setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    QLinearGradient gradient(0, 0, 0, 100);
-    gradient.setColorAt(0.0, fillColor1);
-    gradient.setColorAt(1.0, fillColor2);
-    painter.setBrush(gradient);
-    painter.drawPath(path);
+   for (auto layer : layers)
+   {
+      painter.setPen(QPen(layer.penColor, layer.penWidth, layer.penStyle, Qt::RoundCap, Qt::RoundJoin));
+      QLinearGradient gradient(0, 0, 0, 100);
+      gradient.setColorAt(0.0, layer.fillColor1);
+      gradient.setColorAt(1.0, layer.fillColor2);
+      painter.setBrush(gradient);
+      painter.drawPath(layer.path);
+   }
 }
