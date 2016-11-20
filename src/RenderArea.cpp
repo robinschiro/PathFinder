@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 
-#include "inc/RenderArea.h"
+#include "RenderArea.h"
 #include <iostream>
 
 RenderArea::RenderArea(vector<RenderLayer> layers, const int width,
@@ -80,9 +80,6 @@ void RenderArea::paintEvent(QPaintEvent *)
    QPainter painter(this);
    painter.setRenderHint(QPainter::Antialiasing);
    painter.scale(width() / canvasWidth, height() / canvasHeight);
-//   painter.translate(50.0, 50.0);
-//   painter.rotate(-rotationAngle);
-//   painter.translate(-50.0, -50.0);
 
    for (auto layer : layers)
    {

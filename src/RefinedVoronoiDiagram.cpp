@@ -1,6 +1,6 @@
-#include "inc/RefinedVoronoiDiagram.h"
+#include "RefinedVoronoiDiagram.h"
 
 RefinedVoronoiDiagram::RefinedVoronoiDiagram()
 {
-   
+
 }

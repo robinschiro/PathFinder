@@ -57,7 +57,7 @@
 #include <memory>
 #include <vector>
 
-#include "inc/RenderLayer.h"
+#include "RenderLayer.h"
 
 using namespace std;
 
@@ -66,7 +66,7 @@ class RenderArea : public QWidget
     Q_OBJECT
 
 public:
-    explicit RenderArea(vector<RenderLayer> layers, const int canvasWidth, 
+    explicit RenderArea(vector<RenderLayer> layers, const int canvasWidth,
                         const int canvasHeight, QWidget* parent = 0);
 
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;

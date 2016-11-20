@@ -5,7 +5,7 @@
 #include "boost/polygon/voronoi.hpp"
 #include "boost/polygon/polygon.hpp"
 
-#include "inc/RefinedVoronoiDiagram.h"
+#include "RefinedVoronoiDiagram.h"
 
 using namespace boost::polygon;
 using namespace std;
@@ -37,11 +37,11 @@ private:
                                                          vector<Segment>& segments);
 
    // Given an input site point and a cell, create type one segments for all Voronoi vertices in a cell.
-   void CreateTypeOneSegments(Cell& cell, vector<Segment>& typeOneSegments,
+   void CreateTypeOneSegments(VCell& cell, vector<Segment>& typeOneSegments,
                               Point& inputSiteStart, Point* inputSiteEnd = NULL);
 
    // Given an input site point and a cell, create type two segments for all Voronoi edges in a cell.
-   void CreateTypeTwoSegments(Cell& cell, vector<Segment>& typeTwoSegments, Point& inputSiteStart);
+   void CreateTypeTwoSegments(VCell& cell, vector<Segment>& typeTwoSegments, Point& inputSiteStart);
 };
 
 #endif // VORONOIGENERATOR_H

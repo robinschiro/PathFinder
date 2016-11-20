@@ -3,9 +3,9 @@
 
 #include <memory>
 
-#include "inc/RenderArea.h"
+#include "RenderArea.h"
 #include "boost/polygon/voronoi.hpp"
-#include "inc/VoronoiGenerator.h"
+#include "VoronoiGenerator.h"
 
 using namespace boost::polygon;
 using namespace std;
@@ -28,9 +28,9 @@ private:
    RenderLayer DrawPolygonFeatures(vector<PolygonFeature>& features);
 
    RenderLayer DrawVoronoiEdges(unique_ptr<VoronoiDiagram> diagram);
-   void GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge);
-   Point RetrievePoint(const Cell& cell);
-   Segment RetrieveSegment(const Cell& cell);
+   void GenerateCurvedEdgePoints(const VEdge& edge, std::vector<Point>* sampled_edge);
+   Point RetrievePoint(const VCell& cell);
+   Segment RetrieveSegment(const VCell& cell);
 
    RenderLayer DrawSegments(vector<Segment>& segments, QColor color = Qt::black, Qt::PenStyle penStyle = Qt::SolidLine);
    void DrawTypeTwoEdges(QPainterPath& canvas, vector<Segment>& diagram);

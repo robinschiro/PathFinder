@@ -1,5 +1,5 @@
-#include "inc/PathVisualizer.h"
-#include "inc/voronoi_visual_utils.hpp"
+#include "PathVisualizer.h"
+#include "voronoi_visual_utils.hpp"
 
 void generateRandomPoints(QPainterPath& canvas, int numPoints, int thickness,
                           int maxXValue, int maxYValue,
@@ -99,7 +99,7 @@ RenderLayer PathVisualizer::DrawPolygonFeatures(vector<PolygonFeature>& features
    return layer;
 }
 
-Point PathVisualizer::RetrievePoint(const Cell& cell)
+Point PathVisualizer::RetrievePoint(const VCell& cell)
 {
    SourceIndex index = cell.source_index();
    SourceCat category = cell.source_category();
@@ -116,7 +116,7 @@ Point PathVisualizer::RetrievePoint(const Cell& cell)
    }
 }
 
-Segment PathVisualizer::RetrieveSegment(const Cell& cell)
+Segment PathVisualizer::RetrieveSegment(const VCell& cell)
 {
    SourceIndex index = cell.source_index() - sourceVertices.size();
    return sourceEdges[index];
@@ -124,9 +124,9 @@ Segment PathVisualizer::RetrieveSegment(const Cell& cell)
 
 // Based on source:
 // http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
-void PathVisualizer::GenerateCurvedEdgePoints(const Edge& edge, std::vector<Point>* sampled_edge)
+void PathVisualizer::GenerateCurvedEdgePoints(const VEdge& edge, std::vector<Point>* sampled_edge)
 {
-   double max_dist = 1E-3 * canvasWidth;
+   double max_dist = 1E-4 * canvasWidth;
 
    Point point = edge.cell()->contains_point() ?
                  RetrievePoint(*edge.cell()) :

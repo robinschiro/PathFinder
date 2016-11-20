@@ -1,4 +1,4 @@
-#include "inc/VoronoiGenerator.h"
+#include "VoronoiGenerator.h"
 
 #include <exception>
 
@@ -105,7 +105,7 @@ unique_ptr<RefinedVoronoiDiagram> VoronoiGenerator::GenerateRefinements(unique_p
    vector<Segment>& typeOneSegments = refinedDiagram->typeOneSegments;
 
    // Iterate through all cells of the diagram.
-   for (Cell cell : diagram->cells())
+   for (VCell cell : diagram->cells())
    {
       std::size_t index = cell.source_index();
 
@@ -173,16 +173,16 @@ unique_ptr<RefinedVoronoiDiagram> VoronoiGenerator::GenerateRefinements(unique_p
    return refinedDiagram;
 }
 
-void VoronoiGenerator::CreateTypeOneSegments(Cell& cell, vector<Segment>& typeOneSegments,
+void VoronoiGenerator::CreateTypeOneSegments(VCell& cell, vector<Segment>& typeOneSegments,
                                              Point& inputSiteStart, Point* inputSiteEnd)
 {
    // Iterate through all of the Voronoi vertices of the cell.
-   Edge* edge = cell.incident_edge();
+   VEdge* edge = cell.incident_edge();
    do
    {
       if (edge->is_finite())
       {
-         Vertex* voronoiVertex = edge->vertex0();
+         VVertex* voronoiVertex = edge->vertex0();
 
          // The input site is a point obstacle.
          if (NULL == inputSiteEnd)
@@ -208,10 +208,10 @@ void VoronoiGenerator::CreateTypeOneSegments(Cell& cell, vector<Segment>& typeOn
    while (edge != cell.incident_edge());
 }
 
-void VoronoiGenerator::CreateTypeTwoSegments(Cell& cell, vector<Segment>& typeTwoSegments, Point& inputSitePoint)
+void VoronoiGenerator::CreateTypeTwoSegments(VCell& cell, vector<Segment>& typeTwoSegments, Point& inputSitePoint)
 {
    // Iterate through all of the Voronoi edges of the cell.
-   Edge* edge = cell.incident_edge();
+   VEdge* edge = cell.incident_edge();
    do
    {
       if (edge->is_finite())

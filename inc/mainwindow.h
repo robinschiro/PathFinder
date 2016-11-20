@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 
-#include "inc/RenderArea.h"
+#include "RenderArea.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,7 +22,7 @@ protected:
 
 private:
     Ui::MainWindow *ui;
-    
+
     RenderArea* RunPathFinder();
 };
 

@@ -14,9 +14,9 @@ typedef double CoordNumType;
 typedef point_data<CoordNumType> Point;
 typedef segment_data<CoordNumType> Segment;
 typedef voronoi_diagram<CoordNumType> VoronoiDiagram;
-typedef VoronoiDiagram::vertex_type Vertex;
-typedef VoronoiDiagram::edge_type Edge;
-typedef VoronoiDiagram::cell_type Cell;
+typedef VoronoiDiagram::vertex_type VVertex;
+typedef VoronoiDiagram::edge_type VEdge;
+typedef VoronoiDiagram::cell_type VCell;
 typedef VoronoiDiagram::cell_type::source_index_type SourceIndex;
 typedef VoronoiDiagram::cell_type::source_category_type SourceCat;
 

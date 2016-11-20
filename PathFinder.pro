@@ -20,7 +20,8 @@ SOURCES +=  src/main.cpp\
             src/PathVisualizer.cpp \
             src/VoronoiGenerator.cpp \
             src/RenderLayer.cpp \
-            src/RefinedVoronoiDiagram.cpp
+            src/RefinedVoronoiDiagram.cpp \
+            src/SearchableGraph.cpp
 
 HEADERS  += inc/mainwindow.h \
             inc/RenderArea.h \
@@ -28,9 +29,11 @@ HEADERS  += inc/mainwindow.h \
             inc/VoronoiGenerator.h \
             inc/voronoi_visual_utils.hpp \
             inc/RenderLayer.h \
-            inc/RefinedVoronoiDiagram.h
+            inc/RefinedVoronoiDiagram.h \
+            inc/SearchableGraph.h
 
-INCLUDEPATH += /home/robin/boost_1_60_0
+INCLUDEPATH += /home/robin/boost_1_60_0 \
+               $$_PRO_FILE_PWD_/inc
 
 FORMS    += mainwindow.ui
 

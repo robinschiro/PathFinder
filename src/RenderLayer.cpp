@@ -1,4 +1,4 @@
-#include "inc/RenderLayer.h"
+#include "RenderLayer.h"
 
 RenderLayer::RenderLayer()
 {
