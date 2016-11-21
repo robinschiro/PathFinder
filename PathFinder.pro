@@ -30,7 +30,9 @@ HEADERS  += inc/mainwindow.h \
             inc/voronoi_visual_utils.hpp \
             inc/RenderLayer.h \
             inc/RefinedVoronoiDiagram.h \
-            inc/SearchableGraph.h
+            inc/SearchableGraph.h \
+    inc/GeometryStructures.h \
+    inc/Util.h
 
 INCLUDEPATH += /home/robin/boost_1_60_0 \
                $$_PRO_FILE_PWD_/inc

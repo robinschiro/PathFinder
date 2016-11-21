@@ -47,7 +47,7 @@ PathVisualizer::PathVisualizer(int canvasWidth, int canvasHeight) :
 {
 }
 
-RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, RefinedVoronoiDiagram* rvDiagram,
+RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, unique_ptr<RefinedVoronoiDiagram>& rvDiagram,
                                          vector<Point>& vertices, vector<Segment>& edges)
 {
    int startEndBuffer = 100;
@@ -67,7 +67,7 @@ RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, Refin
    layers.push_back(this->DrawSegments(rvDiagram->typeOneSegments, Qt::green));
 
    // Draw Voronoi edges.
-   layers.push_back(this->DrawVoronoiEdges(std::move(rvDiagram->voronoiDiagram)));
+   layers.push_back(this->DrawVoronoiEdges(rvDiagram));
 
    // Draw features.
    layers.push_back(this->DrawPolygonFeatures(features));
@@ -99,83 +99,28 @@ RenderLayer PathVisualizer::DrawPolygonFeatures(vector<PolygonFeature>& features
    return layer;
 }
 
-Point PathVisualizer::RetrievePoint(const VCell& cell)
-{
-   SourceIndex index = cell.source_index();
-   SourceCat category = cell.source_category();
-   if (category == SOURCE_CATEGORY_SINGLE_POINT) {
-      return sourceVertices[index];
-   }
-   index -= sourceVertices.size();
-   if (category == SOURCE_CATEGORY_SEGMENT_START_POINT) {
-      return low(sourceEdges[index]);
-   }
-   else
-   {
-      return high(sourceEdges[index]);
-   }
-}
-
-Segment PathVisualizer::RetrieveSegment(const VCell& cell)
-{
-   SourceIndex index = cell.source_index() - sourceVertices.size();
-   return sourceEdges[index];
-}
-
-// Based on source:
-// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
-void PathVisualizer::GenerateCurvedEdgePoints(const VEdge& edge, std::vector<Point>* sampled_edge)
-{
-   double max_dist = 1E-4 * canvasWidth;
-
-   Point point = edge.cell()->contains_point() ?
-                 RetrievePoint(*edge.cell()) :
-                 RetrievePoint(*edge.twin()->cell());
-
-   Segment segment = edge.cell()->contains_point() ?
-                     RetrieveSegment(*edge.twin()->cell()) :
-                     RetrieveSegment(*edge.cell());
-
-   voronoi_visual_utils<CoordNumType>::discretize(point, segment, max_dist, sampled_edge);
-}
-
-// Based on source:
-// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
-RenderLayer PathVisualizer::DrawVoronoiEdges(unique_ptr<VoronoiDiagram> vd)
+// Iterate through all of the edges of the voronoi diagram and draw them.
+RenderLayer PathVisualizer::DrawVoronoiEdges(unique_ptr<RefinedVoronoiDiagram>& vd)
 {
    RenderLayer layer;
 
-   for (auto it = vd->edges().begin(); it != vd->edges().end(); ++it)
+   for (auto vertex : vd->graph->vertices)
    {
-      std::vector<Point> samples;
-      if (!it->is_finite())
+      for (auto edge : vertex->neighbors)
       {
-         continue;
-//        clip_infinite_edge(*it, &samples);
-      }
-      else
-      {
-         Point vertex0(it->vertex0()->x(), it->vertex0()->y());
-         samples.push_back(vertex0);
-         Point vertex1(it->vertex1()->x(), it->vertex1()->y());
-         samples.push_back(vertex1);
-         if (it->is_curved())
+         vector<Point>& points = edge.discretization;
+         if (points.size() >= 2)
          {
-            GenerateCurvedEdgePoints(*it, &samples);
-         }
-      }
+            // Draw the edge.
+            QPainterPath edge;
+            edge.moveTo(points[0].x(), points[0].y());
+            for (int i = 1; i < points.size(); i++)
+            {
+               edge.lineTo(points[i].x(), points[i].y());
+            }
 
-      if (samples.size() >= 2)
-      {
-         // Draw the edge.
-         QPainterPath edge;
-         edge.moveTo(samples[0].x(), samples[0].y());
-         for (int i = 1; i < samples.size(); i++)
-         {
-            edge.lineTo(samples[i].x(), samples[i].y());
+            layer.path.addPath(edge);
          }
-
-         layer.path.addPath(edge);
       }
    }
 

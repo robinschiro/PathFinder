@@ -24,6 +24,7 @@ namespace polygon {
 template <typename CT>
 class voronoi_visual_utils {
  public:
+
   // Discretize parabolic Voronoi edge.
   // Parabolic Voronoi edges are always formed by one point and one segment
   // from the initial input set.
@@ -63,7 +64,8 @@ class voronoi_visual_utils {
       const Point<InCT1>& point,
       const Segment<InCT2>& segment,
       const CT max_dist,
-      std::vector< Point<CT> >* discretization) {
+      std::vector< Point<CT> >* discretization,
+      CT& edgeWeight) {
     // Apply the linear transformation to move start point of the segment to
     // the point with coordinates (0, 0) and the direction of the segment to
     // coincide the positive direction of the x-axis.
@@ -96,6 +98,10 @@ class voronoi_visual_utils {
     CT cur_x = projection_start;
     CT cur_y = parabola_y(cur_x, rot_x, rot_y);
 
+    // Keep track of the previously pushed point.
+    Point<CT> prevPoint = (*discretization)[0];
+    Point<CT> currPoint;
+
     // Adjust max_dist parameter in the transformed space.
     const CT max_dist_transformed = max_dist * max_dist * sqr_segment_length;
     while (!point_stack.empty()) {
@@ -120,7 +126,13 @@ class voronoi_visual_utils {
             sqr_segment_length + cast(x(low(segment)));
         CT inter_y = (segm_vec_x * new_y + segm_vec_y * new_x) /
             sqr_segment_length + cast(y(low(segment)));
-        discretization->push_back(Point<CT>(inter_x, inter_y));
+        currPoint = {inter_x, inter_y};
+        discretization->push_back(currPoint);
+
+        // Update the edge weight.
+        edgeWeight += distance(x(currPoint), y(currPoint), x(prevPoint), y(prevPoint));
+        prevPoint = currPoint;
+
         cur_x = new_x;
         cur_y = new_y;
       } else {
@@ -136,6 +148,11 @@ class voronoi_visual_utils {
   // Compute y(x) = ((x - a) * (x - a) + b * b) / (2 * b).
   static CT parabola_y(CT x, CT a, CT b) {
     return ((x - a) * (x - a) + b * b) / (b + b);
+  }
+
+  static CT distance(CT start_x, CT start_y, CT end_x, CT end_y)
+  {
+     return sqrt(pow(end_x - start_x, 2) + pow(end_y - start_y, 2));
   }
 
   // Get normalized length of the distance between:

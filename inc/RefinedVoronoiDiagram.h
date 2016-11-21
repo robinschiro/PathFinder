@@ -4,68 +4,36 @@
 #include <memory>
 #include <vector>
 
-#include "boost/polygon/voronoi.hpp"
-#include "boost/polygon/polygon.hpp"
-
-using namespace boost::polygon;
-using namespace std;
-
-typedef double CoordNumType;
-typedef point_data<CoordNumType> Point;
-typedef segment_data<CoordNumType> Segment;
-typedef voronoi_diagram<CoordNumType> VoronoiDiagram;
-typedef VoronoiDiagram::vertex_type VVertex;
-typedef VoronoiDiagram::edge_type VEdge;
-typedef VoronoiDiagram::cell_type VCell;
-typedef VoronoiDiagram::cell_type::source_index_type SourceIndex;
-typedef VoronoiDiagram::cell_type::source_category_type SourceCat;
-
-using namespace std;
-
-
-template<typename T, typename... Args>
-std::unique_ptr<T> make_unique(Args&&... args) {
-    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-}
-
-struct PolygonFeature
-{
-   vector<Point> vertices;
-
-   void add(Point p)
-   {
-      vertices.push_back(p);
-   }
-};
-
-struct Vector
-{
-   double x;
-   double y;
-
-   Vector(double x, double y) : x(x), y(y){}
-
-   double dot(const Vector& other)
-   {
-      return (this->x * other.x) + (this->y * other.y);
-   }
-
-   double magSquared()
-   {
-      return (this->x * this->x) + (this->y * this->y);
-   }
-
-};
+#include "GeometryStructures.h"
+#include "Util.h"
+#include "SearchableGraph.h"
 
 class RefinedVoronoiDiagram
 {
 public:
-   RefinedVoronoiDiagram();
+   RefinedVoronoiDiagram(unique_ptr<VoronoiDiagram>& diagram,
+                         vector<Point>& points,
+                         vector<Segment>& segments,
+                         vector<Segment> borders,
+                         int canvasWidth);
 
    unique_ptr<VoronoiDiagram> voronoiDiagram;
+   unique_ptr<SearchableGraph> graph;
    vector<Segment> typeOneSegments;
    vector<Segment> typeTwoSegments;
    vector<Segment> borders;
+
+private:
+   // Computer the typeOneSegments that must be made to the base Voronoi diagram.
+   void GenerateRefinements(unique_ptr<VoronoiDiagram>& diagram,
+                            vector<Point>& points,
+                            vector<Segment>& segments);
+
+   // Given an input site point and a cell, create type one segments for all Voronoi vertices in a cell.
+   void CreateTypeOneSegments(VCell& cell, Point& inputSiteStart, Point* inputSiteEnd = NULL);
+
+   // Given an input site point and a cell, create type two segments for all Voronoi edges in a cell.
+   void CreateTypeTwoSegments(VCell& cell, Point& inputSiteStart);
 
 };
 

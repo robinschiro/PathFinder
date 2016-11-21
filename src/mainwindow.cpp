@@ -38,7 +38,7 @@ RenderArea* MainWindow::RunPathFinder()
    // Generate the Voronoi diagram.
    vector<Point> sourceVertices;
    vector<Segment> sourceEdges;
-   RefinedVoronoiDiagram* vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
+   unique_ptr<RefinedVoronoiDiagram> vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
 
    PathVisualizer visualizer(canvasWidth, canvasHeight);
    RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges);
