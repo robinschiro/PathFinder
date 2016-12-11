@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-QMAKE_CXXFLAGS += -O0
+QMAKE_CXXFLAGS += -O0 -std=c++11
 
 TARGET = PathFinder
 TEMPLATE = app
