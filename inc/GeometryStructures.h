@@ -83,9 +83,10 @@ struct Edge
    shared_ptr<Vertex> dest;
    vector<Point> discretization;
    double weight;
+   bool isPrimary = true;
 
-   Edge(shared_ptr<Vertex> src, shared_ptr<Vertex> dest, vector<Point> points, double weight) :
-      src(src), dest(dest), discretization(points), weight(weight) {}
+   Edge(shared_ptr<Vertex> src, shared_ptr<Vertex> dest, vector<Point> points, double weight, bool isPrimary) :
+      src(src), dest(dest), discretization(points), weight(weight), isPrimary(isPrimary) {}
 };
 
 

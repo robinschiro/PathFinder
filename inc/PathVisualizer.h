@@ -19,7 +19,8 @@ public:
    RenderArea* CreateCanvas(vector<PolygonFeature>& features,
                             unique_ptr<RefinedVoronoiDiagram>& vDiagram,
                             vector<Point>& vertices,
-                            vector<Segment>& edges);
+                            vector<Segment>& edges,
+                            vector<Point>& minimalPath);
 
 private:
    int canvasWidth;
@@ -28,10 +29,14 @@ private:
    vector<Segment> sourceEdges;
 
 
+   RenderLayer DrawStartAndEndPoints();
+
    RenderLayer DrawPolygonFeatures(vector<PolygonFeature>& features);
 
    RenderLayer DrawVoronoiEdges(unique_ptr<RefinedVoronoiDiagram>& diagram);
 
+   RenderLayer DrawPathThroughPoints(vector<Point>& points, QColor color = Qt::black,
+                                     Qt::PenStyle penStyle = Qt::SolidLine, int penWidth = 1);
    RenderLayer DrawSegments(vector<Segment>& segments, QColor color = Qt::black, Qt::PenStyle penStyle = Qt::SolidLine);
    void DrawTypeTwoEdges(QPainterPath& canvas, vector<Segment>& diagram);
    void DrawTypeThreeEdges(QPainterPath& canvas, vector<Segment>& diagram);

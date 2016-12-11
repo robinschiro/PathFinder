@@ -24,5 +24,10 @@ void RenderLayer::setPenWidth(int width)
 
 void RenderLayer::setPenColor(const QColor &color)
 {
-    penColor = color;
+   penColor = color;
+}
+
+void RenderLayer::ConcatenateLayerPath(RenderLayer& layer)
+{
+   this->path.addPath(layer.path);
 }

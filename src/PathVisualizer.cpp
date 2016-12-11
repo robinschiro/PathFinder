@@ -48,7 +48,7 @@ PathVisualizer::PathVisualizer(int canvasWidth, int canvasHeight) :
 }
 
 RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, unique_ptr<RefinedVoronoiDiagram>& rvDiagram,
-                                         vector<Point>& vertices, vector<Segment>& edges)
+                                         vector<Point>& vertices, vector<Segment>& edges, vector<Point>& minimalPath)
 {
    int startEndBuffer = 100;
 
@@ -56,7 +56,8 @@ RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, uniqu
    sourceEdges = edges;
 
    vector<RenderLayer> layers;
-//   // Generate start and end points.
+
+
 //   generateRandomPoints(grid, 1, 4, startEndBuffer, canvasHeight);
 //   generateRandomPoints(grid, 1, 4, canvasWidth, canvasHeight, canvasWidth - startEndBuffer);
 
@@ -64,7 +65,7 @@ RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, uniqu
    layers.push_back(this->DrawSegments(rvDiagram->borders));
 
    // Draw the type one segments.
-   layers.push_back(this->DrawSegments(rvDiagram->typeOneSegments, Qt::green));
+   layers.push_back(this->DrawSegments(rvDiagram->typeOneSegments, Qt::cyan));
 
    // Draw Voronoi edges.
    layers.push_back(this->DrawVoronoiEdges(rvDiagram));
@@ -72,8 +73,32 @@ RenderArea* PathVisualizer::CreateCanvas(vector<PolygonFeature>& features, uniqu
    // Draw features.
    layers.push_back(this->DrawPolygonFeatures(features));
 
+   // Draw path
+   layers.push_back(this->DrawPathThroughPoints(minimalPath, Qt::green, Qt::SolidLine, 2));
+
+   // Generate start and end points.
+   layers.push_back(this->DrawStartAndEndPoints());
 
    return new RenderArea(layers, canvasWidth, canvasHeight);
+}
+
+RenderLayer PathVisualizer::DrawStartAndEndPoints()
+{
+   RenderLayer layer;
+   layer.fillColor1 = Qt::darkGreen;
+   layer.fillColor2 = Qt::darkGreen;
+
+   int thickness = 5;
+
+   QPainterPath endpoints;
+
+   QPointF bottomLeft(0, canvasHeight);
+   QPointF topRight(canvasWidth, 0);
+   endpoints.addEllipse(bottomLeft, thickness, thickness);
+   endpoints.addEllipse(topRight, thickness, thickness);
+   layer.path = endpoints;
+
+   return layer;
 }
 
 RenderLayer PathVisualizer::DrawPolygonFeatures(vector<PolygonFeature>& features)
@@ -92,6 +117,7 @@ RenderLayer PathVisualizer::DrawPolygonFeatures(vector<PolygonFeature>& features
       {
          poly << QPointF(p.x(), p.y());
       }
+      poly << poly[0];
 
       layer.path.addPolygon(poly);
    }
@@ -109,19 +135,35 @@ RenderLayer PathVisualizer::DrawVoronoiEdges(unique_ptr<RefinedVoronoiDiagram>& 
       for (auto edge : vertex->neighbors)
       {
          vector<Point>& points = edge.discretization;
-         if (points.size() >= 2)
-         {
-            // Draw the edge.
-            QPainterPath edge;
-            edge.moveTo(points[0].x(), points[0].y());
-            for (int i = 1; i < points.size(); i++)
-            {
-               edge.lineTo(points[i].x(), points[i].y());
-            }
-
-            layer.path.addPath(edge);
-         }
+         RenderLayer edgeLayer = DrawPathThroughPoints(points);
+         layer.ConcatenateLayerPath(edgeLayer);
       }
+   }
+
+   return layer;
+}
+
+RenderLayer PathVisualizer::DrawPathThroughPoints(vector<Point>& points, QColor color, Qt::PenStyle penStyle,
+                                                  int penWidth)
+{
+   RenderLayer layer;
+   layer.penColor = color;
+   layer.penStyle = penStyle;
+   layer.fillColor1 = Qt::transparent;
+   layer.fillColor2 = Qt::transparent;
+   layer.penWidth = penWidth;
+
+   if (points.size() >= 2)
+   {
+      // Draw the edge.
+      QPainterPath edge;
+      edge.moveTo(points[0].x(), points[0].y());
+      for (int i = 1; i < points.size(); i++)
+      {
+         edge.lineTo(points[i].x(), points[i].y());
+      }
+
+      layer.path.addPath(edge);
    }
 
    return layer;

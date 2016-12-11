@@ -20,6 +20,7 @@ public:
    // For now, generate a set of fixed polygon features.
    // TODO: Generate random polygon features.
    vector<PolygonFeature> GeneratePolygonFeatures();
+   vector<PolygonFeature> GeneratePolygonFeatures2();
 
    // Given a set of polygonal features, construct a Voronoi diagram.
    // Update the passed-in empty vectors of source vertices and edges.

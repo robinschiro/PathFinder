@@ -25,8 +25,8 @@ SearchableGraph::SearchableGraph(unique_ptr<VoronoiDiagram>& vd, vector<Point>& 
          edgePoints.push_back(endPoint);
 
          // Create or retrieve the corresponding vertices of the searchable graph.
-         shared_ptr<Vertex> startVertex = FindVertex(startPoint);
-         shared_ptr<Vertex> endVertex = FindVertex(endPoint);
+         shared_ptr<Vertex> startVertex = FindOrCreateVertex(startPoint);
+         shared_ptr<Vertex> endVertex = FindOrCreateVertex(endPoint);
 
          double edgeWeight;
 
@@ -41,15 +41,61 @@ SearchableGraph::SearchableGraph(unique_ptr<VoronoiDiagram>& vd, vector<Point>& 
          }
 
          // Create an edge, update the start vertex.
-         Edge newEdge(startVertex, endVertex, edgePoints, edgeWeight);
+         Edge newEdge(startVertex, endVertex, edgePoints, edgeWeight, it->is_primary());
          startVertex->neighbors.push_back(newEdge);
       }
    }
-
-   std::cout << "Created List" << std::endl;
 }
 
-shared_ptr<Vertex> SearchableGraph::FindVertex(Point& point)
+vector<Point> SearchableGraph::FindMinimalCostPath()
+{
+   vector<Point> path;
+
+   // Find the source and target points.
+   // It will be the bottom-left most point in the graph.
+   shared_ptr<Vertex> source = vertices[0];
+   shared_ptr<Vertex> target = vertices[0];
+   for (auto vertex : vertices)
+   {
+      if ((vertex->point.x() <= source->point.x()) &&
+          (vertex->point.y() >= source->point.y()))
+      {
+         source = vertex;
+      }
+
+      if ((vertex->point.x() >= target->point.x()) &&
+          (vertex->point.y() <= target->point.y()))
+      {
+         target = vertex;
+      }
+   }
+
+   // Run Djikstra's algorithm.
+   vector<shared_ptr<Vertex>> previousVertices = RunDjikstras(source);
+
+   shared_ptr<Vertex> temp = target;
+   while (NULL != temp)
+   {
+      int destId = temp->id;
+      temp = previousVertices[temp->id];
+
+      // Insert points for edge.
+      if (NULL != temp)
+      {
+         for (Edge edge : temp->neighbors)
+         {
+            if (destId == edge.dest->id)
+            {
+               path.insert(path.begin(), edge.discretization.begin(), edge.discretization.end());
+            }
+         }
+      }
+   }
+
+   return path;
+}
+
+shared_ptr<Vertex> SearchableGraph::FindOrCreateVertex(Point& point)
 {
    for (shared_ptr<Vertex> vertex : vertices)
    {
@@ -65,18 +111,33 @@ shared_ptr<Vertex> SearchableGraph::FindVertex(Point& point)
    return newVertex;
 }
 
-void SearchableGraph::RemoveVertex(int id)
+bool SearchableGraph::VertexVectorContains(int id, vector<shared_ptr<Vertex>>& verts)
 {
-   for ( auto vertIter = vertices.begin(); vertIter != vertices.end(); vertIter++)
+   for (auto vertex : verts)
+   {
+      if (id == vertex->id)
+      {
+         return true;
+      }
+   }
+
+   return false;
+}
+
+void SearchableGraph::RemoveVertex(int id, vector<shared_ptr<Vertex>>& verts)
+{
+   for ( auto vertIter = verts.begin(); vertIter != verts.end(); vertIter++)
    {
       if (id == (*vertIter)->id)
       {
-         vertices.erase(vertIter);
+         verts.erase(vertIter);
          return;
       }
    }
 }
 
+// Implementation based on source:
+// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
 Point SearchableGraph::RetrievePoint(const VCell& cell)
 {
    SourceIndex index = cell.source_index();
@@ -94,13 +155,15 @@ Point SearchableGraph::RetrievePoint(const VCell& cell)
    }
 }
 
+// Implementation based on source:
+// http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
 Segment SearchableGraph::RetrieveSegment(const VCell& cell)
 {
    SourceIndex index = cell.source_index() - sourcePoints.size();
    return sourceSegments[index];
 }
 
-// Based on source:
+// Implementation based on source:
 // http://www.boost.org/doc/libs/1_54_0/libs/polygon/example/voronoi_visualizer.cpp
 void SearchableGraph::GenerateCurvedEdgePoints(const VEdge& edge, std::vector<Point>* sampled_edge,
                                                double& edgeWeight)
@@ -118,24 +181,30 @@ void SearchableGraph::GenerateCurvedEdgePoints(const VEdge& edge, std::vector<Po
    voronoi_visual_utils<CoordNumType>::discretize(point, segment, max_dist, sampled_edge, edgeWeight);
 }
 
-vector<shared_ptr<Vertex>> SearchableGraph::RunDjikstras(Vertex source)
+vector<shared_ptr<Vertex>> SearchableGraph::RunDjikstras(shared_ptr<Vertex> source)
 {
    double inf = 1E9;
-   vector<shared_ptr<Vertex>> prev(vertices.size());
-   vector<double> dist(vertices.size());
+
+   // Make a copy of vertices vector.
+   vector<shared_ptr<Vertex>> verticesCopy(vertices.begin(), vertices.end());
+
+   // Keep track of the path of previous vertices.
+   // This is needed to reconstruct the optimal path.
+   vector<shared_ptr<Vertex>> prev(verticesCopy.size());
+   vector<double> dist(verticesCopy.size());
 
    for (int i = 0; i < dist.size(); i++)
    {
       dist[i] = inf;
    }
-   dist[source.id] = 0;
+   dist[source->id] = 0;
 
-   while (!vertices.empty())
+   while (!verticesCopy.empty())
    {
       // Find the vertex with the smallest distance to the source.
       shared_ptr<Vertex> next;
       int minDist = inf;
-      for (auto vertex : vertices)
+      for (auto vertex : verticesCopy)
       {
           if ( dist[vertex->id] <= minDist )
           {
@@ -143,12 +212,18 @@ vector<shared_ptr<Vertex>> SearchableGraph::RunDjikstras(Vertex source)
               minDist = dist[vertex->id];
           }
       }
-//      vertices.erase(std::find(vertices.begin(), vertices.end(), next));
-      RemoveVertex(next->id);
+//      verticesCopy.erase(std::find(verticesCopy.begin(), verticesCopy.end(), next));
+      RemoveVertex(next->id, verticesCopy);
 
       for (Edge neighbor : next->neighbors)
       {
          int neighborId = neighbor.dest->id;
+         // Skip edges that have destination vertices that have already been examined
+         // or that are secondary edges.
+         if (!VertexVectorContains(neighborId, verticesCopy) || !neighbor.isPrimary)
+         {
+            continue;
+         }
          double potentialDist = minDist + neighbor.weight;
          if (potentialDist < dist[neighborId])
          {

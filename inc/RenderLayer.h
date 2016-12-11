@@ -21,6 +21,8 @@ public:
     void setPenWidth(int canvasWidth);
     void setPenColor(const QColor &color);
 
+    void ConcatenateLayerPath(RenderLayer& layer);
+
 private:
 
 };

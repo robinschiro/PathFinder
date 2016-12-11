@@ -40,8 +40,12 @@ RenderArea* MainWindow::RunPathFinder()
    vector<Segment> sourceEdges;
    unique_ptr<RefinedVoronoiDiagram> vDiagram = vGen.GenerateVoronoiDiagram(features, sourceVertices, sourceEdges);
 
+   // Find the minimal cost path.
+   vector<Point> path = vDiagram->graph->FindMinimalCostPath();
+
    PathVisualizer visualizer(canvasWidth, canvasHeight);
-   RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges);
+   RenderArea* visualization = visualizer.CreateCanvas(features, vDiagram, sourceVertices, sourceEdges, path);
+   visualization->paintToFile();
 
    return visualization;
 }

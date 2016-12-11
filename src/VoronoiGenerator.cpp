@@ -50,6 +50,152 @@ vector<PolygonFeature> VoronoiGenerator::GeneratePolygonFeatures()
    return features;
 }
 
+vector<PolygonFeature> VoronoiGenerator::GeneratePolygonFeatures2()
+{
+   vector<PolygonFeature> features;
+   PolygonFeature feature;
+
+   feature.add(Point(50, 30));
+   feature.add(Point(50, 100));
+   feature.add(Point(10, 100));
+   feature.add(Point(10, 30));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(500, 300));
+   feature.add(Point(500, 350));
+   feature.add(Point(400, 350));
+   feature.add(Point(400, 300));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(200, 150));
+   feature.add(Point(200, 250));
+   feature.add(Point(275, 250));
+   feature.add(Point(275, 150));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+
+   feature.add(Point(750, 410));
+   feature.add(Point(750, 485));
+   feature.add(Point(625, 485));
+   feature.add(Point(675, 410));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(50, 405));
+   feature.add(Point(50, 470));
+   feature.add(Point(150, 470));
+   feature.add(Point(100, 415));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(450, 60));
+   feature.add(Point(450, 120));
+   feature.add(Point(550, 100));
+   feature.add(Point(550, 75));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(800, 20));
+   feature.add(Point(800, 75));
+   feature.add(Point(880, 100));
+   feature.add(Point(860, 30));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(600, 275));
+   feature.add(Point(600, 320));
+   feature.add(Point(680, 330));
+   feature.add(Point(650, 240));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(850, 350));
+   feature.add(Point(850, 420));
+   feature.add(Point(920, 435));
+   feature.add(Point(920, 370));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+   feature.add(Point(280, 380));
+   feature.add(Point(400, 470));
+   feature.add(Point(250, 465));
+   feature.add(Point(200, 360));
+   features.push_back(feature);
+   feature.vertices.clear();
+
+
+
+//   feature.add(Point(400, 200));
+//   feature.add(Point(400, 300));
+//   feature.add(Point(350, 200));
+//   feature.add(Point(350, 300));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+//   feature.add(Point(1, 2));
+//   feature.add(Point(1, 3));
+//   feature.add(Point(4, 2));
+//   feature.add(Point(4, 3));
+//   features.push_back(feature);
+//   feature.vertices.clear();
+
+
+
+   return features;
+}
+
 unique_ptr<RefinedVoronoiDiagram> VoronoiGenerator::GenerateVoronoiDiagram(vector<PolygonFeature>& features,
                                                                 vector<Point>& points,
                                                                 vector<Segment>& segments)

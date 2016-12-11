@@ -61,7 +61,7 @@ RenderArea::RenderArea(vector<RenderLayer> layers, const int width,
 
 QSize RenderArea::minimumSizeHint() const
 {
-    return QSize(canvasWidth, canvasHeight);
+    return QSize(canvasWidth + 2*offset, canvasHeight + 2*offset);
 }
 
 QSize RenderArea::sizeHint() const
@@ -75,11 +75,15 @@ void RenderArea::setRotationAngle(int degrees)
     update();
 }
 
-void RenderArea::paintEvent(QPaintEvent *)
+void RenderArea::paintLayers(QPainter& painter)
 {
-   QPainter painter(this);
+   painter.translate(offset, offset);
+
+   // Paint a white background.
+   painter.fillRect(0, 0, canvasWidth, canvasHeight, Qt::white);
+
    painter.setRenderHint(QPainter::Antialiasing);
-   painter.scale(width() / canvasWidth, height() / canvasHeight);
+//   painter.scale(width() / canvasWidth, height() / canvasHeight);
 
    for (auto layer : layers)
    {
@@ -90,4 +94,20 @@ void RenderArea::paintEvent(QPaintEvent *)
       painter.setBrush(gradient);
       painter.drawPath(layer.path);
    }
+}
+
+void RenderArea::paintToFile()
+{
+    QString path("pathFinderResult.png");
+    QImage img(1000, 500, QImage::Format_ARGB32);
+
+    QPainter painter(&img);
+    paintLayers(painter);
+    img.save(path);
+}
+
+void RenderArea::paintEvent(QPaintEvent *)
+{
+   QPainter painter(this);
+   paintLayers(painter);
 }

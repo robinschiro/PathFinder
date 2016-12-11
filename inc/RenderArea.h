@@ -72,6 +72,9 @@ public:
     QSize minimumSizeHint() const Q_DECL_OVERRIDE;
     QSize sizeHint() const Q_DECL_OVERRIDE;
 
+    void paintLayers(QPainter& painter);
+    void paintToFile();
+
 public slots:
     void setRotationAngle(int degrees);
 
@@ -83,6 +86,7 @@ private:
     int rotationAngle;
     int canvasWidth;
     int canvasHeight;
+    int offset = 10;
 };
 
 #endif // RENDERAREA_H
