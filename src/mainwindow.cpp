@@ -1,5 +1,6 @@
 #include "PathVisualizer.h"
 #include "VoronoiGenerator.h"
+#include "RenderAreaWidget.h"
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <iostream>
@@ -17,7 +18,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // Run the path finding algorithm, which generates a visualization.
     RenderArea* pathFinderResults = RunPathFinder();
 
-    mainLayout->addWidget(pathFinderResults);
+    // Create widget.
+    auto pathWidget = new RenderAreaWidget(pathFinderResults);
+
+    mainLayout->addWidget(pathWidget);
     ui->centralWidget->setLayout(mainLayout);
 }
 

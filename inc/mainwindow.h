@@ -15,6 +15,8 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    static RenderArea* RunPathFinder();
+
     ~MainWindow();
 
 protected:
@@ -23,7 +25,6 @@ protected:
 private:
     Ui::MainWindow *ui;
 
-    RenderArea* RunPathFinder();
 };
 
 #endif // MAINWINDOW_H

@@ -53,27 +53,20 @@
 
 RenderArea::RenderArea(vector<RenderLayer> layers, const int width,
                        const int height, QWidget *parent)
-    : QWidget(parent), layers(layers), canvasWidth(width), canvasHeight(height)
+    : /*QWidget(parent),*/ layers(layers), canvasWidth(width), canvasHeight(height)
 {
-    rotationAngle = 0;
-    setBackgroundRole(QPalette::Base);
+//    setBackgroundRole(QPalette::Base);
 }
 
-QSize RenderArea::minimumSizeHint() const
-{
-    return QSize(canvasWidth + 2*offset, canvasHeight + 2*offset);
-}
+//QSize RenderArea::minimumSizeHint() const
+//{
+//    return QSize(canvasWidth + 2*offset, canvasHeight + 2*offset);
+//}
 
-QSize RenderArea::sizeHint() const
-{
-    return minimumSizeHint();
-}
-
-void RenderArea::setRotationAngle(int degrees)
-{
-    rotationAngle = degrees;
-    update();
-}
+//QSize RenderArea::sizeHint() const
+//{
+//    return minimumSizeHint();
+//}
 
 void RenderArea::paintLayers(QPainter& painter)
 {
@@ -106,8 +99,8 @@ void RenderArea::paintToFile()
     img.save(path);
 }
 
-void RenderArea::paintEvent(QPaintEvent *)
-{
-   QPainter painter(this);
-   paintLayers(painter);
-}
+//void RenderArea::paintEvent(QPaintEvent *)
+//{
+//   QPainter painter(this);
+//   paintLayers(painter);
+//}
