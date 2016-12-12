@@ -1,8 +1,6 @@
-#include "RenderAreaWidget.h"
+#include <RenderAreaWidget.h>
 
-RenderAreaWidget::RenderAreaWidget(RenderArea* area, QWidget* parent) :
-   QWidget(parent),
-   renderArea(area)
+RenderAreaWidget::RenderAreaWidget(RenderArea* area, QWidget* parent) : QWidget(parent), renderArea(area)
 {
    setBackgroundRole(QPalette::Base);
 }

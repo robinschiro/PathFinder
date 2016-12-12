@@ -22,7 +22,7 @@ SOURCES +=  src/main.cpp\
             src/RenderLayer.cpp \
             src/RefinedVoronoiDiagram.cpp \
             src/SearchableGraph.cpp \
-            src/RenderAreaWidget.cpp
+    src/RenderAreaWidget.cpp
 
 HEADERS  += inc/mainwindow.h \
             inc/RenderArea.h \
@@ -34,7 +34,6 @@ HEADERS  += inc/mainwindow.h \
             inc/SearchableGraph.h \
             inc/GeometryStructures.h \
             inc/Util.h \
-            inc/RenderAreaWidget.h \
     inc/RenderAreaWidget.h
 
 INCLUDEPATH += /home/robin/boost_1_60_0 \
