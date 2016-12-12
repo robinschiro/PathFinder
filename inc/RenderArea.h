@@ -53,7 +53,6 @@
 
 #include <QPainterPath>
 #include <QPainter>
-//#include <QWidget>
 #include <memory>
 #include <vector>
 
@@ -61,16 +60,11 @@
 
 using namespace std;
 
-class RenderArea /*: public QWidget*/
+class RenderArea
 {
-//    Q_OBJECT
-
 public:
     explicit RenderArea(vector<RenderLayer> layers, const int canvasWidth,
                         const int canvasHeight, QWidget* parent = 0);
-
-//    QSize minimumSizeHint() const Q_DECL_OVERRIDE;
-//    QSize sizeHint() const Q_DECL_OVERRIDE;
 
     void paintLayers(QPainter& painter);
     void paintToFile();
@@ -79,10 +73,6 @@ public:
     int canvasWidth;
     int canvasHeight;
     int offset = 10;
-
-protected:
-//    void paintEvent(QPaintEvent* event) Q_DECL_OVERRIDE;
-
 };
 
 #endif // RENDERAREA_H

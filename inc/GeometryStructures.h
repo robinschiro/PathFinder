@@ -73,7 +73,7 @@ struct Vertex
 
    bool hasPoint(const Point& point)
    {
-      areSame(this->point.x(), point.x()) && areSame(this->point.y(), point.y());
+      return areSame(this->point.x(), point.x()) && areSame(this->point.y(), point.y());
    }
 };
 

@@ -53,20 +53,9 @@
 
 RenderArea::RenderArea(vector<RenderLayer> layers, const int width,
                        const int height, QWidget *parent)
-    : /*QWidget(parent),*/ layers(layers), canvasWidth(width), canvasHeight(height)
+    : layers(layers), canvasWidth(width), canvasHeight(height)
 {
-//    setBackgroundRole(QPalette::Base);
 }
-
-//QSize RenderArea::minimumSizeHint() const
-//{
-//    return QSize(canvasWidth + 2*offset, canvasHeight + 2*offset);
-//}
-
-//QSize RenderArea::sizeHint() const
-//{
-//    return minimumSizeHint();
-//}
 
 void RenderArea::paintLayers(QPainter& painter)
 {
@@ -92,15 +81,9 @@ void RenderArea::paintLayers(QPainter& painter)
 void RenderArea::paintToFile()
 {
     QString path("pathFinderResult.png");
-    QImage img(1000, 500, QImage::Format_ARGB32);
+    QImage img(canvasWidth+2*offset, canvasHeight+2*offset, QImage::Format_ARGB32);
 
     QPainter painter(&img);
     paintLayers(painter);
     img.save(path);
 }
-
-//void RenderArea::paintEvent(QPaintEvent *)
-//{
-//   QPainter painter(this);
-//   paintLayers(painter);
-//}
