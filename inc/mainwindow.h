@@ -14,8 +14,8 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    static RenderArea* RunPathFinder();
+    explicit MainWindow(bool useAltGeneration = false, QWidget *parent = 0);
+    static RenderArea* RunPathFinder(bool useAltGeneration = false);
 
     ~MainWindow();
 

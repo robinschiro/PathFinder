@@ -6,7 +6,7 @@
 #include <iostream>
 #include <QtWidgets>
 
-MainWindow::MainWindow(QWidget *parent) :
+MainWindow::MainWindow(bool useAltGeneration, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QGridLayout *mainLayout = new QGridLayout;
 
     // Run the path finding algorithm, which generates a visualization.
-    RenderArea* pathFinderResults = RunPathFinder();
+    RenderArea* pathFinderResults = RunPathFinder(useAltGeneration);
 
     // Create widget.
     auto pathWidget = new RenderAreaWidget(pathFinderResults);
@@ -30,14 +30,22 @@ MainWindow::~MainWindow()
    delete ui;
 }
 
-RenderArea* MainWindow::RunPathFinder()
+RenderArea* MainWindow::RunPathFinder(bool useAltGeneration)
 {
    int canvasWidth = 1000;
    int canvasHeight = 500;
 
    // Generate the polygonal obstacles.
    VoronoiGenerator vGen(canvasWidth, canvasHeight);
-   vector<PolygonFeature> features = vGen.GeneratePolygonFeatures();
+   vector<PolygonFeature> features;
+   if (!useAltGeneration)
+   {
+      features = vGen.GeneratePolygonFeatures();
+   }
+   else
+   {
+      features = vGen.GeneratePolygonFeatures2();
+   }
 
    // Generate the Voronoi diagram.
    vector<Point> sourceVertices;
